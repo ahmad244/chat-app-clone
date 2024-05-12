@@ -1,0 +1,9 @@
+@media (max-width: 992px) {
+  body .w-sm-100 {
+    width: 100% !important;
+  }
+}
+
+div.d-flex.justify-content-between > img {
+  min-width: 70px;
+}

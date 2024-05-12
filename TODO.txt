@@ -1,0 +1,12 @@
+
+
+###     TODO
+#form validations
+#Reftesh Cookie on verify
+#socket-updates for conversation list
+#socket rooms
+
+
+###     Done
+#Set Cookie
+#populate chats and their sender name/email

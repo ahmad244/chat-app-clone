@@ -1,0 +1,15 @@
+*/node_modules/
+*/.env
+
+chat-app-clone-frontend/logs
+chat-app-clone-frontend/*.log
+chat-app-clone-frontend/npm-debug.log*
+chat-app-clone-frontend/yarn-debug.log*
+chat-app-clone-frontend/yarn-error.log*
+chat-app-clone-frontend/pnpm-debug.log*
+chat-app-clone-frontend/lerna-debug.log*
+
+
+chat-app-clone-frontend/dist
+chat-app-clone-frontend/dist-ssr
+chat-app-clone-frontend/*.local
