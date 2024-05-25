@@ -4,10 +4,6 @@ import { useSelector } from "react-redux";
 
 const SocketContext = React.createContext();
 const BASE_URL = import.meta.env.VITE_REACT_APP_SOCKET_URL;
-console.log(
-  "import.meta.env.VITE_REACT_APP_SOCKET_URL ==>",
-  import.meta.env.VITE_REACT_APP_SOCKET_URL
-);
 
 export function useSocket() {
   return useContext(SocketContext);

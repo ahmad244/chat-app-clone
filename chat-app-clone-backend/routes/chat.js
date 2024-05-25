@@ -3,7 +3,7 @@ import mongoose from "mongoose";
 
 import Conversation from "../models/Conversation.js";
 import Chat from "../models/Chat.js";
-import { verifyToken } from "./verifyToken.js";
+import { verifyToken } from "../utils/authUtils.js";
 
 const router = Router();
 
@@ -53,7 +53,6 @@ router.post("/:ConversationId", verifyToken, async (req, res) => {
       content: getChat,
     });
   } catch (err) {
-    // console.log(err);
     return res.status(500).json(err);
   }
 });

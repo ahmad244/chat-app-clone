@@ -1,5 +1,5 @@
 import { Router } from "express";
-import { verifyToken } from "./verifyToken.js";
+import { verifyToken } from "../utils/authUtils.js";
 import User from "../models/User.js";
 import mongoose from "mongoose";
 
@@ -38,7 +38,6 @@ router.post("/add", verifyToken, async (req, res) => {
 });
 
 router.get("/", verifyToken, async (req, res) => {
-  // console.log("get contacts userId: ", req.user._id, "email: ", req.user.email);
   try {
     const result = await User.findOne({ _id: req.user._id })
       .populate("contacts", "email name phoneNumber")

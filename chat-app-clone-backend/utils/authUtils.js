@@ -24,4 +24,19 @@ function setTokenCookie(res, token) {
   });
 }
 
-export { generateResponseObject, setTokenCookie };
+const verifyToken = (req, res, next) => {
+  const token = req.cookies.token;
+
+  if (token && token !== "null" && token !== "undefined") {
+    jwt.verify(token, process.env.JWT_SEC, (err, user) => {
+      if (err) return res.status(403).json("Token is not valid!");
+      req.user = user;
+
+      next();
+    });
+  } else {
+    return res.status(401).json("You are not authenticated!");
+  }
+};
+
+export { generateResponseObject, setTokenCookie, verifyToken };

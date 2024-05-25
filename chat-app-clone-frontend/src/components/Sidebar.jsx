@@ -6,11 +6,15 @@ import NewConversationModal from "./NewConversationModal";
 import NewContactModal from "./NewContactModal";
 import { useSelector, useDispatch } from "react-redux";
 import { logoutRun } from "../redux/userRedux";
+import { LogoutUser } from "../api/user";
 
 const CONVERSATIONS_KEY = "conversations";
 const CONTACTS_KEY = "contacts";
 
-export default function Sidebar({selectedConversation, setSelectedConversation}) {
+export default function Sidebar({
+  selectedConversation,
+  setSelectedConversation,
+}) {
   const dispatch = useDispatch();
 
   const [activeKey, setActiveKey] = useState(CONVERSATIONS_KEY);
@@ -18,26 +22,29 @@ export default function Sidebar({selectedConversation, setSelectedConversation})
   const [modalOpen, setModalOpen] = useState(false);
   const user = useSelector((state) => state.user.currentUser);
   const [refreshContacts, setRefreshContacts] = useState(false);
-const [refreshConversatinos, setRefreshConversations] = useState(false);
+  const [refreshConversatinos, setRefreshConversations] = useState(false);
 
   function refreshContactsFunc() {
     setRefreshContacts((prev) => !prev);
   }
-function refreshConversatinosFunc() {
+  function refreshConversatinosFunc() {
     setRefreshConversations((prev) => !prev);
-}
+  }
   function closeModal() {
     setModalOpen(false);
   }
+
+  const handleLogout = async () => {
+    const response = await LogoutUser();
+    if (response.success) {
+      dispatch(logoutRun());
+    }
+  };
+
   return (
     <div style={{ width: "250px" }} className="d-flex flex-column">
       <Tab.Container activeKey={activeKey} onSelect={setActiveKey}>
-        <Button
-          className="rounded-0"
-          onClick={() => {
-            dispatch(logoutRun());
-          }}
-        >
+        <Button className="rounded-0" onClick={handleLogout}>
           Loggout
         </Button>
         <Nav variant="tabs" className="justify-content-center">
@@ -51,7 +58,11 @@ function refreshConversatinosFunc() {
 
         <Tab.Content className="border-right overflow-auto flex-grow-1">
           <Tab.Pane eventKey={CONVERSATIONS_KEY}>
-            <Conversations selectedConversation={selectedConversation} setSelectedConversation={setSelectedConversation} refreshConversatinos={refreshConversatinos} />
+            <Conversations
+              selectedConversation={selectedConversation}
+              setSelectedConversation={setSelectedConversation}
+              refreshConversatinos={refreshConversatinos}
+            />
           </Tab.Pane>
           <Tab.Pane eventKey={CONTACTS_KEY}>
             <Contacts user={user} refreshContacts={refreshContacts} />
@@ -74,7 +85,10 @@ function refreshConversatinosFunc() {
       </Tab.Container>
       <Modal show={modalOpen} onHide={closeModal}>
         {odalconversationIsOpen ? (
-          <NewConversationModal closeModal={closeModal} refreshConversatinosFunc={refreshConversatinosFunc} />
+          <NewConversationModal
+            closeModal={closeModal}
+            refreshConversatinosFunc={refreshConversatinosFunc}
+          />
         ) : (
           <NewContactModal
             closeModal={closeModal}

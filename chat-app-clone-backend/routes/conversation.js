@@ -1,5 +1,5 @@
 import { Router } from "express";
-import { verifyToken } from "./verifyToken.js";
+import { verifyToken } from "../utils/authUtils.js";
 import Conversation from "../models/Conversation.js";
 import mongoose from "mongoose";
 

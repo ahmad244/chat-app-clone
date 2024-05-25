@@ -9,7 +9,7 @@ export default function Contacts({ refreshContacts, user }) {
     const fetchContacts = async () => {
       const contacts = await GetContacts();
       setContacts(Array.isArray(contacts.data) ? contacts.data : []);
-      console.log("useEffect is called", contacts.data);
+      // console.log("useEffect is called", contacts.data);
     };
 
     fetchContacts();

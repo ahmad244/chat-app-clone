@@ -1,8 +1,11 @@
 import { Router } from "express";
 import User from "../models/User.js";
 import CryptoJS from "crypto-js";
-import jwt from "jsonwebtoken";
-import { generateResponseObject, setTokenCookie } from "../utils/authUtils.js";
+import {
+  generateResponseObject,
+  setTokenCookie,
+  verifyToken,
+} from "../utils/authUtils.js";
 
 const router = Router();
 
@@ -71,6 +74,16 @@ router.post("/login", async (req, res) => {
     return res.status(200).json(responseObj);
   } catch (err) {
     console.log("error in login user api call", err);
+    return res.status(500).json(err);
+  }
+});
+
+router.post("/logout", verifyToken, async (req, res) => {
+  try {
+    res.clearCookie("token");
+    return res.status(200).json("User logged out");
+  } catch (err) {
+    console.log("error in logout user api call", err);
     return res.status(500).json(err);
   }
 });
