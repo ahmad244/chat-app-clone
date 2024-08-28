@@ -1,15 +1,35 @@
+HELP.md
+target/
+!.mvn/wrapper/maven-wrapper.jar
+!**/src/main/**/target/
+!**/src/test/**/target/
+
+### STS ###
+.apt_generated
+.classpath
+.factorypath
+.project
+.settings
+.springBeans
+.sts4-cache
+
+### IntelliJ IDEA ###
+.idea
+*.iws
+*.iml
+*.ipr
+
+### NetBeans ###
+/nbproject/private/
+/nbbuild/
+/dist/
+/nbdist/
+/.nb-gradle/
+build/
+!**/src/main/**/build/
+!**/src/test/**/build/
+
+### VS Code ###
+.vscode/
 */node_modules/
 */.env
-
-chat-app-clone-frontend/logs
-chat-app-clone-frontend/*.log
-chat-app-clone-frontend/npm-debug.log*
-chat-app-clone-frontend/yarn-debug.log*
-chat-app-clone-frontend/yarn-error.log*
-chat-app-clone-frontend/pnpm-debug.log*
-chat-app-clone-frontend/lerna-debug.log*
-
-
-chat-app-clone-frontend/dist
-chat-app-clone-frontend/dist-ssr
-chat-app-clone-frontend/*.local
