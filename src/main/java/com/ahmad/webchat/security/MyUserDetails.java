@@ -18,6 +18,11 @@ public class MyUserDetails implements UserDetails {
         this.user = user;
     }
 
+    public User getUser() {
+        return user;
+    }
+    
+
     @Override
     public Collection<? extends GrantedAuthority> getAuthorities() {
         Set<UserRole> roles = user.getUserRoles();
@@ -55,4 +60,5 @@ public class MyUserDetails implements UserDetails {
     public boolean isEnabled() {
         return user.isEnabled();
     }
+
 }

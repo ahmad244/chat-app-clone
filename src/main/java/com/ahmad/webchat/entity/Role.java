@@ -30,13 +30,13 @@ public class Role {
     @Column(name = "id")
     private Long id;
 
-    @Column(name = "name")
+    @Column(name = "name",nullable = false)
     private String name;
 
-    @Column(name = "description", length = 4000)
+    @Column(name = "description", length = 4000,nullable = false)
     private String description;
 
-    @OneToMany(mappedBy = "role", fetch = FetchType.LAZY)
+    @OneToMany(mappedBy = "role", fetch = FetchType.EAGER)
     private Set<UserRole> usersWithRole;
 
 }
