@@ -30,6 +30,7 @@ import com.ahmad.webchat.security.MyUserDetailsService;
 
 import jakarta.servlet.http.Cookie;
 import jakarta.transaction.Transactional;
+import reactor.core.publisher.Mono;
 
 @Service
 public class AuthServiceImpl implements AuthService {
@@ -63,88 +64,85 @@ public class AuthServiceImpl implements AuthService {
 
         @Override
         @Transactional
-        public ResponseDTO<User> registerUser(RegisterUserDTO user) {
-               
-                        userRepository.findByUsername(user.getUsername()).ifPresent(u -> {
-                                throw new UsernameAlreadyExistException("Username already exists");
-                        });
-
-                        Role basicRole = roleRepository.findByName("BASIC_USER");
-
-                        Set<UserRole> userRoles = new HashSet<UserRole>();
-
-                        User tempUser = User.builder()
-                                        .email(user.getEmail())
-                                        .firstName(user.getFirstName())
-                                        .lastName(user.getLastName())
-                                        .username(user.getUsername())
-                                        .password(passwordEncoder.encode(user.getPassword()))
-                                        .enabled(true)
-                                        .build();
-
-                        UserRole userRole = UserRole.builder()
-                                        .role(basicRole)
-                                        .user(tempUser)
-                                        .build();
-                        userRoles.add(userRole);
-
-                        tempUser.setUserRoles(userRoles);
-
-                        User savedUser = userRepository.save(tempUser);
-
-                        ResponseDTO<User> response = ResponseDTO.<User>builder().data(savedUser).build();
-                        return response;
-                
+        public Mono<ResponseDTO<User>> registerUser(RegisterUserDTO user) {
+            return userRepository.findByUsername(user.getUsername())
+                .flatMap(existingUser -> Mono.<ResponseDTO<User>>error(new UsernameAlreadyExistException("Username already exists")))
+                .switchIfEmpty(
+                    roleRepository.findByName("BASIC_USER")
+                        .flatMap(basicRole -> {
+                            User tempUser = User.builder()
+                                .email(user.getEmail())
+                                .firstName(user.getFirstName())
+                                .lastName(user.getLastName())
+                                .username(user.getUsername())
+                                .password(passwordEncoder.encode(user.getPassword()))
+                                .enabled(true)
+                                .build();
+        
+                            UserRole userRole = UserRole.builder()
+                                .role(basicRole)
+                                .user(tempUser)
+                                .build();
+        
+                            tempUser.setUserRoles(Set.of(userRole));
+        
+                            return userRepository.save(tempUser)
+                                .map(savedUser -> ResponseDTO.<User>builder().data(savedUser).build());
+                        })
+                );
         }
+        
+        
 
         @Override
-        public ResponseEntity<ResponseDTO<?>> loginUser(AuthenticationRequestDTO user) {
-                try {
-                        authenticationManager.authenticate(
-                                        new UsernamePasswordAuthenticationToken(
-                                                        user.getUsername(), user.getPassword()));
-
-                        final UserDetails userDetails = userDetailsService
-                                        .loadUserByUsername(user.getUsername());
-
-                        // Generate JWT token
-                        final String jwt = jwtTokenUtil.generateToken(userDetails.getUsername());
-                        // final String jwt = jwtTokenUtil.generateToken(userDetails.getUsername());
-
-                        // cookie
-
-                        Cookie cookie = new Cookie("jwt", jwt);
-
-                        // expires in 3 minutes
-                        cookie.setMaxAge((int) EXPIRATION);
-
-                        // optional properties
-                        cookie.setSecure(true);
-                        cookie.setHttpOnly(true);
-                        cookie.setPath("/");
-
-                        // Manually format the Set-Cookie header
-                        String cookieHeader = String.format(
-                                        "%s=%s; HttpOnly; Secure; Path=%s; Max-Age=%d",
-                                        cookie.getName(), cookie.getValue(), cookie.getPath(), cookie.getMaxAge());
-                        ResponseDTO<AuthenticationResponseDTO> response = ResponseDTO
-                                        .<AuthenticationResponseDTO>builder()
-                                        .data(new AuthenticationResponseDTO(jwt)).build();
-
-                        return ResponseEntity.ok()
-                                        .header("Set-Cookie", cookieHeader)
-                                        .body(response);
-
-                } catch (AuthenticationException e) {
-                        ResponseDTO<String> response = ResponseDTO.<String>builder()
-                                        .message(ResponseMessageDTO.builder().code(HttpStatus.UNAUTHORIZED.toString())
-                                                        .message("Invalid username or password").build())
-                                        .build();
-
-                        return new ResponseEntity<>(response, HttpStatus.UNAUTHORIZED);
-
-                }
+        public Mono<ResponseEntity<ResponseDTO<?>>> loginUser(AuthenticationRequestDTO user) {
+            return Mono.fromCallable(() -> 
+                    authenticationManager.authenticate(
+                        new UsernamePasswordAuthenticationToken(user.getUsername(), user.getPassword()))
+                )
+                .flatMap(authResult -> userDetailsService.loadUserByUsername(user.getUsername()))
+                .flatMap(userDetails -> {
+                    // Generate JWT token
+                    String jwt = jwtTokenUtil.generateToken(userDetails.getUsername());
+        
+                    // Create the cookie
+                    Cookie cookie = new Cookie("jwt", jwt);
+                    cookie.setMaxAge((int) EXPIRATION);
+                    cookie.setSecure(true);
+                    cookie.setHttpOnly(true);
+                    cookie.setPath("/");
+        
+                    // Manually format the Set-Cookie header
+                    String cookieHeader = String.format(
+                        "%s=%s; HttpOnly; Secure; Path=%s; Max-Age=%d",
+                        cookie.getName(), cookie.getValue(), cookie.getPath(), cookie.getMaxAge());
+        
+                    // Create the response DTO
+                    ResponseDTO<AuthenticationResponseDTO> response = ResponseDTO
+                        .<AuthenticationResponseDTO>builder()
+                        .data(new AuthenticationResponseDTO(jwt))
+                        .build();
+        
+                    // Return the ResponseEntity
+                    return Mono.just(
+                        ResponseEntity.ok()
+                            .header("Set-Cookie", cookieHeader)
+                            .body(response)
+                    );
+                })
+                .onErrorResume(AuthenticationException.class, e -> {
+                    // Handle authentication error
+                    ResponseDTO<String> response = ResponseDTO.<String>builder()
+                        .message(ResponseMessageDTO.builder()
+                            .code(HttpStatus.UNAUTHORIZED.toString())
+                            .message("Invalid username or password")
+                            .build())
+                        .build();
+        
+                    return Mono.just(new ResponseEntity<>(response, HttpStatus.UNAUTHORIZED));
+                });
         }
+        
 
         @Override
         public ResponseDTO<Boolean> logoutUser() {

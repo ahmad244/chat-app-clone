@@ -9,6 +9,8 @@ import org.springframework.stereotype.Service;
 import com.ahmad.webchat.dao.UserRepository;
 import com.ahmad.webchat.entity.User;
 
+import reactor.core.publisher.Mono;
+
 @Service
 public class MyUserDetailsService implements UserDetailsService {
 
@@ -18,7 +20,7 @@ public class MyUserDetailsService implements UserDetailsService {
     @Override
     public UserDetails loadUserByUsername(String username) throws UsernameNotFoundException {
         User user = userRepository.findByUsername(username)
-                .orElseThrow(() -> new UsernameNotFoundException("User not found"));
+                .switchIfEmpty(Mono.error(new UsernameNotFoundException("User not found")));
         return new MyUserDetails(user);
     }
 }

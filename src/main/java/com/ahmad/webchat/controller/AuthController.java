@@ -13,6 +13,8 @@ import com.ahmad.webchat.dto.common.ResponseDTO;
 import com.ahmad.webchat.entity.User;
 import com.ahmad.webchat.service.auth.AuthService;
 
+import reactor.core.publisher.Mono;
+
 
 @RestController
 @RequestMapping("/api/auth")
@@ -26,7 +28,7 @@ public class AuthController {
     }
 
     @PostMapping("/register")
-    public ResponseDTO<User> register(@RequestBody RegisterUserDTO user) {
+    public Mono<ResponseDTO<User>> register(@RequestBody RegisterUserDTO user) {
         return AuthService.registerUser(user);
     }
 

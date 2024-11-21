@@ -20,7 +20,7 @@ public class ContactServiceImpl implements ContactService {
 
     UserRepository userRepository;
 
-    @Autowired
+
     public ContactServiceImpl(UserRepository userRepository) {
         this.userRepository = userRepository;
     }

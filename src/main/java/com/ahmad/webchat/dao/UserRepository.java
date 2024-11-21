@@ -2,17 +2,17 @@ package com.ahmad.webchat.dao;
 
 import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.data.jpa.repository.Query;
-import org.springframework.data.repository.CrudRepository;
+import org.springframework.data.repository.reactive.ReactiveCrudRepository;
 
-import java.util.Optional;
 
 import com.ahmad.webchat.entity.User;
 
 import jakarta.transaction.Transactional;
+import reactor.core.publisher.Mono;
 
-public interface UserRepository extends CrudRepository<User, Long> {
+public interface UserRepository extends ReactiveCrudRepository<User, Long> {
 
-    Optional<User> findByUsername(String username);
+    Mono<User> findByUsername(String username);
 
     @Modifying
     @Transactional

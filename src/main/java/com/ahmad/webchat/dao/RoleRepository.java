@@ -1,11 +1,13 @@
 package com.ahmad.webchat.dao;
 
-import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.data.repository.reactive.ReactiveCrudRepository;
 
 import com.ahmad.webchat.entity.Role;
 
-public interface RoleRepository extends JpaRepository<Role, Long> {
+import reactor.core.publisher.Mono;
 
-    Role findByName(String string);
+public interface RoleRepository extends ReactiveCrudRepository<Role, Long> {
+
+    Mono<Role> findByName(String string);
 
 }
